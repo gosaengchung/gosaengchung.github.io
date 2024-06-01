@@ -37,7 +37,7 @@ class MovingGame {
     this.currentDirections = [];
     this.round = 1;
     this.maxRounds = 5;
-    this.baseTimeLimit = 3000; // 기본 3초
+    this.baseTimeLimit = 10000; // 기본 3초
     this.startTime = 0;
     this.gameOver = false;
     this.gameStarted = false;
@@ -156,13 +156,13 @@ class MovingGame {
   }
 
   getInputDirectionByTilt() {
-    if (thetaX > 15) {
+    if (thetaX > 3) {
       return 'UP';
-    } else if (thetaX < -15) {
+    } else if (thetaX < -3) {
       return 'DOWN';
-    } else if (thetaY > 15) {
+    } else if (thetaY > 3) {
       return 'RIGHT';
-    } else if (thetaY < -15) {
+    } else if (thetaY < -3) {
       return 'LEFT';
     }
     return null;
@@ -222,6 +222,8 @@ function setup() {
 function draw() {
   game.update();
   game.draw();
+  text(thetaX, width/2, height/2);
+  text(thetaY, width/2, height/2);
 }
 
 function mousePressed() {
