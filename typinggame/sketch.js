@@ -106,8 +106,8 @@ class ChatBot {
   }
 
   drawPlayingScreen() {
-    this.updateUIPositions();
-
+    this.startButton.hide();
+    this.restartButton.hide();
     if (!this.isMobile) {
       // 데스크톱에서는 채팅 로그와 입력해야 할 텍스트 표시
       fill(0);
@@ -168,17 +168,9 @@ class ChatBot {
   startGame() {
     this.state = 'playing';
     this.startButton.hide();
-    if (this.isMobile) {
-      this.inputBox.show(); // 모바일일 경우에만 입력창 보이기
-    }
     this.resetTimer(); // 타이머 리셋
   }
 
-  typing() {
-    if (keyCode === ENTER) {
-      this.sendMessage();
-    }
-  }
 
   sendMessage() {
     this.userInput = this.inputBox.value(); // 입력창의 값을 가져옴
@@ -225,18 +217,6 @@ class ChatBot {
       console.log("mobile");
     }
   }
-
-  updateUIPositions() {
-    if (this.isMobile) {
-      this.inputBox.position(10, height - 60);
-    }
-    if (this.startButton) {
-      this.startButton.position(width / 2 - 75, height / 2 + 50);
-    }
-    if (this.restartButton) {
-      this.restartButton.position(width / 2 - 75, height / 2 + 70);
-    }
-  }
 }
 
 let chatBot;
@@ -249,9 +229,4 @@ function setup() {
 
 function draw() {
   chatBot.draw();
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  chatBot.updateUIPositions();
 }
