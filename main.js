@@ -21,6 +21,8 @@ function onClick() {
       .then(permissionState => {
         if (permissionState === 'granted') {
           window.addEventListener('devicemotion', cb);
+        } else {
+          console.log("Permission denied");
         }
       })
       .catch(console.error);
@@ -225,3 +227,4 @@ function draw() {
 function mousePressed() {
   game.startGame();
 }
+
