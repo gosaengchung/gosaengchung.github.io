@@ -108,7 +108,7 @@ class MovingGame {
   drawStartScreen() {
     textSize(32);
     textAlign(CENTER, CENTER);
-    text('Press any key to start', width / 2, height / 2);
+    text('Tap to start', width / 2, height / 2);
   }
 
   drawGameOverScreen() {
@@ -138,20 +138,6 @@ class MovingGame {
     let timerWidth = map(elapsedTime, 0, this.getTimeLimit(), width, 0);
     fill(255, 0, 0);
     rect(0, height - 20, timerWidth, 20);
-  }
-
-  handleKeyPressed() {
-    if (!this.gameStarted) {
-      this.gameStarted = true;
-      this.startNewRound();
-      return;
-    }
-
-    if (this.gameOver) {
-      return;
-    }
-
-    this.processInput(this.getInputDirection());
   }
 
   handleTilt() {
@@ -214,6 +200,13 @@ class MovingGame {
         return '→';
     }
   }
+
+  startGame() {
+    if (!this.gameStarted) {
+      this.gameStarted = true;
+      this.startNewRound();
+    }
+  }
 }
 
 let game;
@@ -229,6 +222,6 @@ function draw() {
   game.draw();
 }
 
-function keyPressed() {
-  game.handleKeyPressed();
+function mousePressed() {
+  game.startGame();
 }
