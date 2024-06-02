@@ -43,7 +43,6 @@ function preload() {
     "party_circle"
   );
   shared = partyLoadShared("shared", { x: 100, y: 100 });
-  clickCount = partyLoadShared("clickCount", { value: 0 });
   guests = partyLoadGuestShareds();
   me = partyLoadMyShared({ degX: 0, degY: 0 }); // degX, degY 추가
 }
@@ -64,19 +63,15 @@ function setup() {
   totalDegY = 0;
 }
 
-function mousePressed() {
-  shared.x = mouseX;
-  shared.y = mouseY;
-  clickCount.value++;
-}
-
 function draw() {
   background(150);
   totalDegX = 0; // 합산된 회전 값을 초기화
   totalDegY = 0;
   for (let i = 0; i < guests.length; i++) {
-    totalDegX += guests[i].degX; // 각 게스트의 y축 기울기를 합산
-    totalDegY += guests[i].degY;
+    if (guests[i].degX !== undefined && guests[i].degY !== undefined) {
+      totalDegX += guests[i].degX; // 각 게스트의 X축 기울기를 합산
+      totalDegY += guests[i].degY; // 각 게스트의 Y축 기울기를 합산
+    }
   }
   game.update();
   game.draw();
@@ -220,14 +215,16 @@ draw() {
 
   //방향키대로 기울이는지 확인
   degmatch(){
-    if(totalDegX>30){
-      inputDirection = 'LEFT'
-    } else if (totalDegX<-30){
-      inputDriection = 'RIGHT'
-    } else if (totalDegY>30){
-      inputDirection = 'UP'
-    } else if (totalDegY<-30){
-      inputDirection = 'DOWN'}
+    let inputDirection = null;
+    if(totalDegX > 30){
+      inputDirection = 'LEFT';
+    } else if (totalDegX < -30){
+      inputDirection = 'RIGHT';
+    } else if (totalDegY > 30){
+      inputDirection = 'UP';
+    } else if (totalDegY < -30){
+      inputDirection = 'DOWN';
+    }
 
   //방향키대로 입력되면 앞에서부터 하나씩 삭제 --> 모두 삭제되면 다음라운드로 이동    
     if (inputDirection) {
@@ -270,3 +267,4 @@ draw() {
 function keyPressed() {
   game.handleKeyPressed();
 }
+
