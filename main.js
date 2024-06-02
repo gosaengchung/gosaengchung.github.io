@@ -1,46 +1,79 @@
-let thetaX = 0, thetaY = 0, thetaZ = 0;
-let dthetaXdt = 0, dthetaYdt = 0, dthetaZdt = 0;
-let dt = 1, t = 0;
-let det = false;
+let shared;
+let clickCount;
+let guests;
+let me;
+let game;
 
-function cb(event) {
-  dthetaXdt = event.rotationRate.alpha * PI / 180;
-  dthetaYdt = event.rotationRate.beta * PI / 180;
-  dthetaZdt = event.rotationRate.gamma * PI / 180;
-
-  let ct = millis() / 1000;
-  dt = ct - t;
-  t = ct;
-
-  det = true;
-}
+document.addEventListener("DOMContentLoaded", function() {
+  const activateButton = document.getElementById('activateButton');
+  if (activateButton) {
+    activateButton.addEventListener('click', onClick);
+  } else {
+    console.error("Activate button not found.");
+  }
+});
 
 function onClick() {
-  if (typeof DeviceMotionEvent.requestPermission === 'function') {
-    DeviceMotionEvent.requestPermission()
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
       .then(permissionState => {
         if (permissionState === 'granted') {
-          window.addEventListener('devicemotion', cb);
-        } else {
-          console.log("Permission denied");
+          window.addEventListener('deviceorientation', cb);
         }
       })
       .catch(console.error);
   } else {
-    window.addEventListener('devicemotion', cb);
+    window.addEventListener('deviceorientation', cb);
   }
+}
+
+function cb(event) {
+  if (event.alpha !== null && event.beta !== null && event.gamma !== null) {
+    me.degX = radians(event.beta); // 기기의 x축 기울기 값을 라디안으로 변환하여 degX에 저장
+    me.degY = radians(event.gamma); // 기기의 y축 기울기 값을 라디안으로 변환하여 degY에 저장
+  }
+}
+
+function preload() {
+  console.log("preload called");
+  partyConnect(
+    "wss://demoserver.p5party.org",
+    "party_circle"
+  );
+  shared = partyLoadShared("shared", { x: 100, y: 100 });
+  clickCount = partyLoadShared("clickCount", { value: 0 });
+  guests = partyLoadGuestShareds();
+  me = partyLoadMyShared({ degX: 0, degY: 0 }); // degX 추가
+}
+
+function setup() {
+  console.log("setup called");
+  createCanvas(800, 600);
+  noStroke();
+
+  if (partyIsHost()) {
+    clickCount.value = 0;
+    shared.x = 200;
+    shared.y = 200;
+  }
+
+  game = new MovingGame();
+}
+
+function draw() {
+  background(150);
+
+  game.update();
+  game.draw();
+}
+
+function keyPressed() {
+  game.handleKeyPressed();
 }
 
 class MovingGame {
   constructor() {
-    this.directions = [];
-    this.currentDirections = [];
-    this.round = 1;
-    this.maxRounds = 5;
-    this.baseTimeLimit = 10000; // 기본 3초
-    this.startTime = 0;
-    this.gameOver = false;
-    this.gameStarted = false;
+    this.clearThreshold = radians(30); // 클리어를 위한 각도 임계값
     this.success = false;
     this.restartButton = createButton('Restart');
     this.restartButton.position(width / 2 - 50, height / 2 + 20);
@@ -49,184 +82,36 @@ class MovingGame {
     this.restartButton.hide();
   }
 
-  startNewRound() {
-    if (this.round > this.maxRounds) {
-      this.success = true;
-      this.gameOver = true;
-      this.restartButton.show();
-      return;
-    }
-
-    this.directions = [];
-    for (let i = 0; i < 2 * this.round + 3; i++) {
-      this.directions.push(this.randomDirection());
-    }
-    this.currentDirections = [...this.directions];
-    this.startTime = millis();
-  }
-
-  randomDirection() {
-    const directions = ['UP', 'LEFT', 'DOWN', 'RIGHT'];
-    return random(directions);
-  }
-
-  getTimeLimit() {
-    return this.baseTimeLimit + this.round * 1000; // 라운드마다 1초 추가
-  }
-
   update() {
-    if (this.gameOver) {
-      return;
-    }
-
-    if (millis() - this.startTime > this.getTimeLimit()) {
-      this.gameOver = true;
-      this.restartButton.show();
+    if (!this.success && me && me.degY !== undefined) {
+      if (abs(me.degY) > this.clearThreshold) { // y축 기울기 값이 임계값을 넘으면
+        this.success = true; // 성공
+        this.restartButton.show(); // 다시 시작 버튼 표시
+      }
     }
   }
 
   draw() {
-    background(220);
-
-    if (!this.gameStarted) {
-      this.drawStartScreen();
-      return;
-    }
-
-    if (this.gameOver) {
-      if (this.success) {
-        this.drawSuccessScreen();
-      } else {
-        this.drawGameOverScreen();
-      }
-      return;
-    }
-
-    this.drawDirections();
-    this.drawTimer();
-    this.handleTilt();
-  }
-
-  drawStartScreen() {
     textSize(32);
     textAlign(CENTER, CENTER);
-    text('Tap to start', width / 2, height / 2);
-  }
 
-  drawGameOverScreen() {
-    textSize(32);
-    textAlign(CENTER, CENTER);
-    text('Time\'s Up! You Lost!', width / 2, height / 2 - 40);
-    this.restartButton.show();
-  }
-
-  drawSuccessScreen() {
-    textSize(32);
-    textAlign(CENTER, CENTER);
-    text('Congratulations! You Won!', width / 2, height / 2 - 40);
-    this.restartButton.show();
-  }
-
-  drawDirections() {
-    textSize(32);
-    textAlign(CENTER, CENTER);
-    for (let i = 0; i < this.currentDirections.length; i++) {
-      text(this.getArrowSymbol(this.currentDirections[i]), width / 2 + (i - this.currentDirections.length / 2) * 50, height / 2);
+    if (this.success) {
+      fill(0, 255, 0);
+      text('Success!', width / 2, height / 2);
+    } else {
+      fill(255);
+      text('Tilt your phone to clear!', width / 2, height / 2);
     }
   }
 
-  drawTimer() {
-    let elapsedTime = millis() - this.startTime;
-    let timerWidth = map(elapsedTime, 0, this.getTimeLimit(), width, 0);
-    fill(255, 0, 0);
-    rect(0, height - 20, timerWidth, 20);
-  }
-
-  handleTilt() {
-    if (det) {
-      thetaX += dthetaXdt * dt;
-      thetaY += dthetaYdt * dt;
-      thetaZ += dthetaZdt * dt;
-
-      const inputDirection = this.getInputDirectionByTilt();
-      if (inputDirection) {
-        this.processInput(inputDirection);
-      }
-    }
-  }
-
-  getInputDirectionByTilt() {
-    if (thetaX > 3) {
-      return 'UP';
-    } else if (thetaX < -3) {
-      return 'DOWN';
-    } else if (thetaY > 3) {
-      return 'RIGHT';
-    } else if (thetaY < -3) {
-      return 'LEFT';
-    }
-    return null;
-  }
-
-  processInput(inputDirection) {
-    if (inputDirection) {
-      let keyIndex = this.currentDirections.indexOf(inputDirection);
-      if (keyIndex !== -1) {
-        this.currentDirections.splice(keyIndex, 1);
-        if (this.currentDirections.length === 0) {
-          this.round++;
-          this.startNewRound();
-        }
-      }
+  handleKeyPressed() {
+    if (this.success && key === 'Enter') {
+      this.resetGame();
     }
   }
 
   resetGame() {
-    this.round = 1;
-    this.gameOver = false;
-    this.gameStarted = false;
     this.success = false;
     this.restartButton.hide();
-    this.startNewRound();
-  }
-
-  getArrowSymbol(direction) {
-    switch (direction) {
-      case 'UP':
-        return '↑';
-      case 'LEFT':
-        return '←';
-      case 'DOWN':
-        return '↓';
-      case 'RIGHT':
-        return '→';
-    }
-  }
-
-  startGame() {
-    if (!this.gameStarted) {
-      this.gameStarted = true;
-      this.startNewRound();
-    }
   }
 }
-
-let game;
-
-function setup() {
-  createCanvas(800, 600);
-  game = new MovingGame();
-  onClick(); // 기울기 감지 시작
-}
-
-function draw() {
-  game.update();
-  game.draw();
-  text(thetaX, width/2, height/2);
-  text(thetaY, width/2, height/2);
-}
-
-function mousePressed() {
-  game.startGame();
-}
-
