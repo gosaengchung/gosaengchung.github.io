@@ -73,11 +73,9 @@ function draw() {
   totalDegX = 0; // 합산된 회전 값을 초기화
   totalDegY = 0;
   for (let i = 0; i < guests.length; i++) {
-    if (guests[i] && guests[i].degX !== undefined && guests[i].degY !== undefined) {
       totalDegX += guests[i].degX; // 각 게스트의 X축 기울기를 합산
       totalDegY += guests[i].degY; // 각 게스트의 Y축 기울기를 합산
     }
-  }
   game.update();
   game.draw();
   textAlign(CENTER, CENTER); // 텍스트 정렬 설정
