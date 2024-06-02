@@ -230,13 +230,13 @@ class MovingGame {
   //방향키대로 기울이는지 확인
   degmatch() {
     let inputDirection = null;
-    if (totalDegY > 30) {
+    if (totalDegY > 1) {
       inputDirection = 'LEFT';
-    } else if (totalDegY < -30) {
+    } else if (totalDegY < -1) {
       inputDirection = 'RIGHT';
-    } else if (totalDegX > 30) {
+    } else if (totalDegX > 1) {
       inputDirection = 'UP';
-    } else if (totalDegX < -30) {
+    } else if (totalDegX < -1) {
       inputDirection = 'DOWN';
     }
 
