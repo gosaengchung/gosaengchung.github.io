@@ -16,29 +16,39 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function onClick() {
+  console.log("Activate button clicked");
   if (typeof DeviceOrientationEvent.requestPermission === 'function') {
     DeviceOrientationEvent.requestPermission()
       .then(permissionState => {
         if (permissionState === 'granted') {
+          console.log("Permission granted");
           window.addEventListener('deviceorientation', cb);
+        } else {
+          console.log("Permission denied");
         }
       })
-      .catch(console.error);
+      .catch(error => {
+        console.error("Error requesting permission:", error);
+      });
   } else {
+    console.log("DeviceOrientationEvent.requestPermission is not a function");
     window.addEventListener('deviceorientation', cb);
   }
 }
 
 function cb(event) {
+  console.log("Device orientation event triggered");
   if (event.gamma !== null) {
-    me.degY = radians(event.gamma); // 기기의 y축 기울기 값을 라디안으로 변환하여 degY에 저장
+    me.degY = radians(event.gamma);
+    console.log("degY:", me.degY);
   }
-
   if (event.beta !== null) {
-    me.degX = radians(event.beta); // 기기의 Y축 기울기 값을 라디안으로 변환하여 degX에 저장 
+    me.degX = radians(event.beta);
+    console.log("degX:", me.degX);
   }
   // party.js와 동기화
   partySetShared(me);
+  console.log("Shared me:", me);
 }
 
 function preload() {
@@ -50,6 +60,7 @@ function preload() {
   shared = partyLoadShared("shared", { x: 100, y: 100 });
   guests = partyLoadGuestShareds();
   me = partyLoadMyShared({ degX: 0, degY: 0 }); // degX, degY 추가
+  console.log("me initialized:", me);
 }
 
 function setup() {
@@ -73,9 +84,12 @@ function draw() {
   totalDegX = 0; // 합산된 회전 값을 초기화
   totalDegY = 0;
   for (let i = 0; i < guests.length; i++) {
+    if (guests[i] && guests[i].degX !== undefined && guests[i].degY !== undefined) {
       totalDegX += guests[i].degX; // 각 게스트의 X축 기울기를 합산
       totalDegY += guests[i].degY; // 각 게스트의 Y축 기울기를 합산
     }
+  }
+  console.log("totalDegX:", totalDegX, "totalDegY:", totalDegY);
   game.update();
   game.draw();
   textAlign(CENTER, CENTER); // 텍스트 정렬 설정
