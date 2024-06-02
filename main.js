@@ -245,7 +245,8 @@ class MovingGame {
     if (inputDirection) {
       let keyIndex = this.currentDirections.indexOf(inputDirection);
       if (keyIndex !== -1) {
-        this.currentDirections.splice(keyIndex, 1);
+        this.currentDirections.splice(keyIndex, 1); // 첫 번째로 맞는 키만 제거
+        console.log("Input matched:", inputDirection, "Remaining directions:", this.currentDirections);
         if (this.currentDirections.length === 0) {
           this.round++;
           this.startNewRound();
