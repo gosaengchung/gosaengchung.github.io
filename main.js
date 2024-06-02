@@ -264,7 +264,7 @@ draw() {
   }
 }
 
-function keyPressed() {
+function mousePressed() {
   game.handleKeyPressed();
 }
 
