@@ -69,7 +69,7 @@ function draw() {
 
 class MovingGame {
   constructor() {
-    this.clearThreshold = radians(30); // 클리어를 위한 각도 임계값
+    this.clearThreshold = 0.3; // 클리어를 위한 각도 임계값
     this.success = false;
     this.restartButton = createButton('Restart');
     this.restartButton.position(width / 2 - 50, height / 2 + 20);
