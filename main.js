@@ -30,10 +30,15 @@ function onClick() {
 }
 
 function cb(event) {
-  if (event.alpha !== null && event.beta !== null && event.gamma !== null) {
-    me.degX = radians(event.beta); // 기기의 x축 기울기 값을 라디안으로 변환하여 degX에 저장
+  if (event.gamma !== null) {
     me.degY = radians(event.gamma); // 기기의 y축 기울기 값을 라디안으로 변환하여 degY에 저장
   }
+
+  if (event.beta !== null) {
+    me.degX = radians(event.beta); // 기기의 Y축 기울기 값을 라디안으로 변환하여 degX에 저장 
+  }
+  // party.js와 동기화
+  partySetShared(me);
 }
 
 function preload() {
@@ -68,7 +73,7 @@ function draw() {
   totalDegX = 0; // 합산된 회전 값을 초기화
   totalDegY = 0;
   for (let i = 0; i < guests.length; i++) {
-    if (guests[i].degX !== undefined && guests[i].degY !== undefined) {
+    if (guests[i] && guests[i].degX !== undefined && guests[i].degY !== undefined) {
       totalDegX += guests[i].degX; // 각 게스트의 X축 기울기를 합산
       totalDegY += guests[i].degY; // 각 게스트의 Y축 기울기를 합산
     }
@@ -79,9 +84,6 @@ function draw() {
   fill("#000066"); // 텍스트 색상 설정
   text(totalDegX.toFixed(2) + " rad", width / 2, 50); // 합산된 기울기 값을 라디안으로 변환하여 화면에 표시
   text(totalDegY.toFixed(2) + " rad", width / 2, 80);
-
-  // console.log(totalDeg); // 합산된 기울기 값을 콘솔에 출력
-
 }
 
 class MovingGame {
@@ -101,7 +103,7 @@ class MovingGame {
     this.restartButton.mousePressed(() => this.resetGame());
     this.restartButton.hide();
   }
-  
+
   startNewRound() {
     // 만약 라운드가 다 달성되면 게임이 종료되고 재시작 버튼이 나옴
     if (this.round > this.maxRounds) {
@@ -111,20 +113,20 @@ class MovingGame {
       return;
     }
 
-  this.directions = [];
-  for (let i = 0; i < 2 * this.round + 3; i++) {
-    this.directions.push(this.randomDirection());
+    this.directions = [];
+    for (let i = 0; i < 2 * this.round + 3; i++) {
+      this.directions.push(this.randomDirection());
+    }
+    this.currentDirections = [...this.directions];
+    this.startTime = millis();
   }
-  this.currentDirections = [...this.directions];
-  this.startTime = millis();
-}
 
   randomDirection() {
     const directions = ['UP', 'LEFT', 'DOWN', 'RIGHT'];  //string으로 direction을 저장
     return random(directions);
   }
 
-  getTimeLimit() { 
+  getTimeLimit() {
     return this.baseTimeLimit + this.round * 1000; // 라운드마다 1초 추가
   }
 
@@ -140,27 +142,27 @@ class MovingGame {
     }
   }
 
-draw() {
-  background(220);
+  draw() {
+    background(220);
 
-  if (!this.gameStarted) {
-    this.drawStartScreen();
-    return;
-  }
-
-  if (this.gameOver) {
-    if (this.success) {
-      this.drawSuccessScreen();
-    } else {
-      this.drawGameOverScreen();
+    if (!this.gameStarted) {
+      this.drawStartScreen();
+      return;
     }
-    return;
+
+    if (this.gameOver) {
+      if (this.success) {
+        this.drawSuccessScreen();
+      } else {
+        this.drawGameOverScreen();
+      }
+      return;
+    }
+    //방향키 화면에 띄우기
+    this.drawDirections();
+    //타이머 화면에 띄우기
+    this.drawTimer();
   }
-  //방향키 화면에 띄우기
-  this.drawDirections();
-  //타이머 화면에 띄우기
-  this.drawTimer();
-}
 
   //게임시작시 화면
   drawStartScreen() {
@@ -191,16 +193,16 @@ draw() {
     textAlign(CENTER, CENTER);
     for (let i = 0; i < this.currentDirections.length; i++) {
       text(this.getArrowSymbol(this.currentDirections[i]), width / 2 + (i - this.currentDirections.length / 2) * 50, height / 2);
-      }
     }
+  }
   //화면에 타이머 띄우기
   drawTimer() {
     let elapsedTime = millis() - this.startTime;
     let timerWidth = map(elapsedTime, 0, this.getTimeLimit(), width, 0);
     fill(255, 0, 0);
     rect(0, height - 20, timerWidth, 20);
-  } 
-  
+  }
+
   handleKeyPressed() {
     if (!this.gameStarted) {
       this.gameStarted = true;
@@ -214,19 +216,19 @@ draw() {
   }
 
   //방향키대로 기울이는지 확인
-  degmatch(){
+  degmatch() {
     let inputDirection = null;
-    if(totalDegX > 30){
+    if (totalDegY > 30) {
       inputDirection = 'LEFT';
-    } else if (totalDegX < -30){
+    } else if (totalDegY < -30) {
       inputDirection = 'RIGHT';
-    } else if (totalDegY > 30){
+    } else if (totalDegX > 30) {
       inputDirection = 'UP';
-    } else if (totalDegY < -30){
+    } else if (totalDegX < -30) {
       inputDirection = 'DOWN';
     }
 
-  //방향키대로 입력되면 앞에서부터 하나씩 삭제 --> 모두 삭제되면 다음라운드로 이동    
+    //방향키대로 입력되면 앞에서부터 하나씩 삭제 --> 모두 삭제되면 다음라운드로 이동    
     if (inputDirection) {
       let keyIndex = this.currentDirections.indexOf(inputDirection);
       if (keyIndex !== -1) {
@@ -236,7 +238,7 @@ draw() {
           this.startNewRound();
         }
       }
-    }  
+    }
   }
 
   //리셋게임
@@ -267,4 +269,3 @@ draw() {
 function mousePressed() {
   game.handleKeyPressed();
 }
-
