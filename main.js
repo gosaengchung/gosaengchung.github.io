@@ -241,16 +241,13 @@ class MovingGame {
       inputDirection = 'UP';
     }
 
-    //방향키대로 입력되면 앞에서부터 하나씩 삭제 --> 모두 삭제되면 다음라운드로 이동    
-    if (inputDirection) {
-      let keyIndex = this.currentDirections.indexOf(inputDirection);
-      if (keyIndex !== -1) {
-        this.currentDirections.splice(keyIndex, 1); // 첫 번째로 맞는 키만 제거
-        console.log("Input matched:", inputDirection, "Remaining directions:", this.currentDirections);
-        if (this.currentDirections.length === 0) {
-          this.round++;
-          this.startNewRound();
-        }
+    // 첫 번째 방향과 현재 방향을 비교하여 일치하면 첫 번째 방향만 제거
+    if (inputDirection && this.currentDirections.length > 0 && inputDirection === this.currentDirections[0]) {
+      this.currentDirections.shift(); // 첫 번째 방향만 제거
+      console.log("Input matched:", inputDirection, "Remaining directions:", this.currentDirections);
+      if (this.currentDirections.length === 0) {
+        this.round++;
+        this.startNewRound();
       }
     }
   }
