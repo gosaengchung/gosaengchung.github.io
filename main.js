@@ -279,5 +279,9 @@ class MovingGame {
 }
 
 function mousePressed() {
-  game.handleKeyPressed();
+  if (game && typeof game.handleKeyPressed === 'function') {
+    game.handleKeyPressed();
+  } else {
+    console.error("game.handleKeyPressed is not a function or game is not defined");
+  }
 }
