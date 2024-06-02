@@ -67,10 +67,6 @@ function draw() {
   game.draw();
 }
 
-function keyPressed() {
-  game.handleKeyPressed();
-}
-
 class MovingGame {
   constructor() {
     this.clearThreshold = radians(30); // 클리어를 위한 각도 임계값
