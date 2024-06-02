@@ -78,8 +78,8 @@ function draw() {
     totalDegX += guests[i].degX; // 각 게스트의 y축 기울기를 합산
     totalDegY += guests[i].degY;
   }
+  game.update();
   game.draw();
-
   textAlign(CENTER, CENTER); // 텍스트 정렬 설정
   fill("#000066"); // 텍스트 색상 설정
   text(totalDegX.toFixed(2) + " rad", width / 2, 50); // 합산된 기울기 값을 라디안으로 변환하여 화면에 표시
@@ -171,7 +171,7 @@ draw() {
   drawStartScreen() {
     textSize(32);
     textAlign(CENTER, CENTER);
-    text('Press any key to start', width / 2, height / 2);
+    text('Press any key to start', width / 2, height / 2 - 100);
   }
 
   //시간 초과시 화면
@@ -206,7 +206,6 @@ draw() {
     rect(0, height - 20, timerWidth, 20);
   } 
   
-  //게임 시작 시 아무 키나 눌러서 시작
   handleKeyPressed() {
     if (!this.gameStarted) {
       this.gameStarted = true;
@@ -242,4 +241,32 @@ draw() {
       }
     }  
   }
+
+  //리셋게임
+  resetGame() {
+    this.round = 1;
+    this.gameOver = false;
+    this.gameStarted = false;
+    this.success = false;
+    this.restartButton.hide();
+    this.startNewRound();
+  }
+
+  //입력한 방향을 방향키로 적용하는 함수
+  getArrowSymbol(direction) {
+    switch (direction) {
+      case 'UP':
+        return '↑';
+      case 'LEFT':
+        return '←';
+      case 'DOWN':
+        return '↓';
+      case 'RIGHT':
+        return '→';
+    }
+  }
+}
+
+function keyPressed() {
+  game.handleKeyPressed();
 }
