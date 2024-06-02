@@ -92,10 +92,11 @@ function draw() {
   console.log("totalDegX:", totalDegX, "totalDegY:", totalDegY);
   game.update();
   game.draw();
+  game.degmatch();
   textAlign(CENTER, CENTER); // 텍스트 정렬 설정
   fill("#000066"); // 텍스트 색상 설정
-  text(totalDegX.toFixed(2) + " rad", width / 2, 50); // 합산된 기울기 값을 라디안으로 변환하여 화면에 표시
-  text(totalDegY.toFixed(2) + " rad", width / 2, 80);
+  text(totalDegX.toFixed(2) + " DegX", width / 2, 50); // 합산된 기울기 값을 라디안으로 변환하여 화면에 표시
+  text(totalDegY.toFixed(2) + " DegY", width / 2, 80);
 }
 
 class MovingGame {
@@ -231,13 +232,13 @@ class MovingGame {
   degmatch() {
     let inputDirection = null;
     if (totalDegY > 1) {
-      inputDirection = 'LEFT';
-    } else if (totalDegY < -1) {
       inputDirection = 'RIGHT';
+    } else if (totalDegY < -1) {
+      inputDirection = 'LEFT';
     } else if (totalDegX > 1) {
-      inputDirection = 'UP';
-    } else if (totalDegX < -1) {
       inputDirection = 'DOWN';
+    } else if (totalDegX < -1) {
+      inputDirection = 'UP';
     }
 
     //방향키대로 입력되면 앞에서부터 하나씩 삭제 --> 모두 삭제되면 다음라운드로 이동    
