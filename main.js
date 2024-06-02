@@ -68,7 +68,6 @@ function mousePressed() {
   shared.x = mouseX;
   shared.y = mouseY;
   clickCount.value++;
-  game.mousePressed(); // 미니게임 1 마우스 클릭 처리
 }
 
 function draw() {
