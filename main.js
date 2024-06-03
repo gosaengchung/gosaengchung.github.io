@@ -61,12 +61,14 @@ function preload() {
   guests = partyLoadGuestShareds();
   me = partyLoadMyShared({ degX: 0, degY: 0 }); // degX, degY 추가
   console.log("me initialized:", me);
+  dungGeunMoFont = loadFont('fonts/DungGeunMo.otf');
 }
 
 function setup() {
   console.log("setup called");
-  createCanvas(800, 600);
+  createCanvas(1280, 960);
   noStroke();
+  textFont(dungGeunMoFont);
 
   if (partyIsHost()) {
     clickCount.value = 0;
@@ -94,9 +96,10 @@ function draw() {
   game.draw();
   game.degmatch();
   textAlign(CENTER, CENTER); // 텍스트 정렬 설정
+  text(32);
   fill("#000066"); // 텍스트 색상 설정
-  text(totalDegX.toFixed(2) + " DegX", width / 2, 50); // 합산된 기울기 값을 라디안으로 변환하여 화면에 표시
-  text(totalDegY.toFixed(2) + " DegY", width / 2, 80);
+  text(totalDegX.toFixed(2) + " DegX", width / 2, height/2 - 30); // 합산된 기울기 값을 라디안으로 변환하여 화면에 표시
+  text(totalDegY.toFixed(2) + " DegY", width / 2, height/2);
 }
 
 class MovingGame {
@@ -202,18 +205,25 @@ class MovingGame {
 
   //화면에 방향키 띄우기
   drawDirections() {
-    textSize(32);
+    textSize(130);
     textAlign(CENTER, CENTER);
     for (let i = 0; i < this.currentDirections.length; i++) {
-      text(this.getArrowSymbol(this.currentDirections[i]), width / 2 + (i - this.currentDirections.length / 2) * 50, height / 2);
+      text(this.getArrowSymbol(this.currentDirections[i]), width / 2 + (i - this.currentDirections.length / 2) * 100, height / 2 - 400);
     }
+    textSize(32);
   }
   //화면에 타이머 띄우기
   drawTimer() {
     let elapsedTime = millis() - this.startTime;
     let timerWidth = map(elapsedTime, 0, this.getTimeLimit(), width, 0);
-    fill(255, 0, 0);
-    rect(0, height - 20, timerWidth, 20);
+
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(50, height - 100, width - 100, 40);
+    noStroke();
+    fill(0, 200, 0);
+    rect(50, height - 100, timerWidth - 100, 40); // 레트로 스타일 타이머 막대
   }
 
   handleKeyPressed() {
@@ -229,7 +239,7 @@ class MovingGame {
   }
 
   //방향키대로 기울이는지 확인
-  degmatch() {
+  /*degmatch() {
     let inputDirection = null;
     if (totalDegY > 1) {
       inputDirection = 'RIGHT';
@@ -239,7 +249,35 @@ class MovingGame {
       inputDirection = 'DOWN';
     } else if (totalDegX < -1) {
       inputDirection = 'UP';
-    }
+    }*/
+
+degmatch(storedDegX, storedDegY) {
+  let inputDirection = null;
+  if (storedDegY > 1) {
+    inputDirection = 'RIGHT';
+    textSize(100);
+    textAlign(CENTER);
+    text("→", width/2, height-200);
+    textSize(32);
+    } else if (storedDegY < -1) {
+    inputDirection = 'LEFT';
+    textSize(100);
+    textAlign(CENTER);
+    text("←", width/2, height-200);
+    textSize(32);
+    } else if (storedDegX > 1) {
+    inputDirection = 'DOWN';
+    textSize(100);
+    textAlign(CENTER);
+    text("↓", width/2, height-200);
+    textSize(32);
+    } else if (storedDegX < -1) {
+    inputDirection = 'UP';
+    textSize(100);
+    textAlign(CENTER);
+    text("↑", width/2, height-200);
+    textSize(32);
+    }    
 
     // 첫 번째 방향과 현재 방향을 비교하여 일치하면 첫 번째 방향만 제거
     if (inputDirection && this.currentDirections.length > 0 && inputDirection === this.currentDirections[0]) {
@@ -280,6 +318,16 @@ class MovingGame {
 function mousePressed() {
   if (game && typeof game.handleKeyPressed === 'function') {
     game.handleKeyPressed();
+  } else {
+    console.error("game.handleKeyPressed is not a function or game is not defined");
+  }
+}
+
+function keyPressed() {
+  if (game && typeof game.handleKeyPressed === 'function') {
+    let storedDegX = totalDegX;
+    let storedDegY = totalDegY;
+    game.degmatch(storedDegX, storedDegY);
   } else {
     console.error("game.handleKeyPressed is not a function or game is not defined");
   }

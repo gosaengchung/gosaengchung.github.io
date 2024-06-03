@@ -138,9 +138,15 @@ class ChatBot {
     let timePassed = millis() - this.timerStart;
     let timeLeft = this.timeLimit - timePassed;
     let barWidth = map(timeLeft, 0, this.timeLimit, 0, width - 20);
+    
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(500, height - 270, width - 1000, 40);
 
-    fill(255, 0, 0);
-    rect(10, height - 100, barWidth, 20);
+    noStroke();
+    fill(0, 200, 0);
+    rect(500, height - 270, barWidth, 40); // 레트로 스타일 타이머 막대
 
     if (timeLeft <= 0) {
       this.state = 'gameOver';
