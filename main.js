@@ -5,6 +5,7 @@ let me;
 let game;
 let totalDegX;
 let totalDegY;
+let lastDirectionText = "";
 
 document.addEventListener("DOMContentLoaded", function() {
   const activateButton = document.getElementById('activateButton');
@@ -100,6 +101,8 @@ function draw() {
   fill("#000066"); // 텍스트 색상 설정
   text(totalDegX.toFixed(2) + " DegX", width / 2, height/2 - 30); // 합산된 기울기 값을 라디안으로 변환하여 화면에 표시
   text(totalDegY.toFixed(2) + " DegY", width / 2, height/2);
+  textSize(24);
+  text(lastDirectionText, width / 2, height / 2 + 50);
 }
 
 class MovingGame {
@@ -205,7 +208,7 @@ class MovingGame {
 
   //화면에 방향키 띄우기
   drawDirections() {
-    textSize(130);
+    textSize(100);
     textAlign(CENTER, CENTER);
     for (let i = 0; i < this.currentDirections.length; i++) {
       text(this.getArrowSymbol(this.currentDirections[i]), width / 2 + (i - this.currentDirections.length / 2) * 100, height / 2 - 400);
@@ -215,7 +218,7 @@ class MovingGame {
   //화면에 타이머 띄우기
   drawTimer() {
     let elapsedTime = millis() - this.startTime;
-    let timerWidth = map(elapsedTime, 0, this.getTimeLimit(), width, 0);
+    let timerWidth = map(elapsedTime, 150, this.getTimeLimit(), width, 0);
 
     noFill();
     stroke(0);
@@ -253,30 +256,15 @@ class MovingGame {
 
 degmatch(storedDegX, storedDegY) {
   let inputDirection = null;
-  if (storedDegY > 1) {
+  fill(0);
+  if (storedDegY > 0.5) {
     inputDirection = 'RIGHT';
-    textSize(100);
-    textAlign(CENTER);
-    text("→", width/2, height-200);
-    textSize(32);
-    } else if (storedDegY < -1) {
+    } else if (storedDegY < -0.5) {
     inputDirection = 'LEFT';
-    textSize(100);
-    textAlign(CENTER);
-    text("←", width/2, height-200);
-    textSize(32);
-    } else if (storedDegX > 1) {
+    } else if (storedDegX > 0.5) {
     inputDirection = 'DOWN';
-    textSize(100);
-    textAlign(CENTER);
-    text("↓", width/2, height-200);
-    textSize(32);
-    } else if (storedDegX < -1) {
+    } else if (storedDegX < -0.5) {
     inputDirection = 'UP';
-    textSize(100);
-    textAlign(CENTER);
-    text("↑", width/2, height-200);
-    textSize(32);
     }    
 
     // 첫 번째 방향과 현재 방향을 비교하여 일치하면 첫 번째 방향만 제거
@@ -286,6 +274,8 @@ degmatch(storedDegX, storedDegY) {
       if (this.currentDirections.length === 0) {
         this.round++;
         this.startNewRound();
+      } else {
+        lastDirectionText = `StoredDegX: ${storedDegX.toFixed(2)}, StoredDegY: ${storedDegY.toFixed(2)}, Direction: ${inputDirection}`;
       }
     }
   }
@@ -313,7 +303,8 @@ degmatch(storedDegX, storedDegY) {
         return '→';
     }
   }
-}
+} 
+
 
 function mousePressed() {
   if (game && typeof game.handleKeyPressed === 'function') {
