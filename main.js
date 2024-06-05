@@ -72,7 +72,6 @@ function setup() {
   textFont(dungGeunMoFont);
 
   if (partyIsHost()) {
-    clickCount.value = 0;
     shared.x = 200;
     shared.y = 200;
   }

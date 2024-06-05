@@ -18,6 +18,11 @@ input, button {
 
 button {
   cursor: pointer;
+  width: 200px; /* 버튼의 너비 */
+  height: 50px; /* 버튼의 높이 */
+  position: absolute; /* 버튼을 절대 위치로 설정 */
+  bottom: 20px; /* 화면 아래에서 20px 떨어진 위치 */
+  right: 20px; /* 화면 오른쪽에서 20px 떨어진 위치 */
 }
 
 button:hover {
