@@ -6,6 +6,10 @@ let game;
 let totalDegX;
 let totalDegY;
 let lastDirectionText = "";
+let startBg;
+let buttonStart, buttonStartOver, buttonStartPressed;
+let buttonAgain, buttonAgainOver, buttonAgainPressed;
+let buttonClose, buttonCloseOver, buttonClosePressed;
 
 document.addEventListener("DOMContentLoaded", function() {
   const activateButton = document.getElementById('activateButton');
@@ -63,6 +67,16 @@ function preload() {
   me = partyLoadMyShared({ degX: 0, degY: 0 }); // degX, degY 추가
   console.log("me initialized:", me);
   dungGeunMoFont = loadFont('fonts/DungGeunMo.otf');
+  startBg = loadImage('assets/boostIntroBg.png'); // 시작화면 배경 이미지 추가
+  buttonStart = loadImage('buttons/buttonStart.png');
+  buttonStartOver = loadImage('buttons/buttonStartOver.png');
+  buttonStartPressed = loadImage('buttons/buttonStartPressed.png');
+  buttonAgain = loadImage('buttons/buttonAgain.png');
+  buttonAgainOver = loadImage('buttons/buttonAgainOver.png');
+  buttonAgainPressed = loadImage('buttons/buttonAgainPressed.png');
+  buttonClose = loadImage('buttons/buttonClose.png');
+  buttonCloseOver = loadImage('buttons/buttonCloseOver.png');
+  buttonClosePressed = loadImage('buttons/buttonClosePressed.png');
 }
 
 function setup() {
@@ -94,9 +108,9 @@ function draw() {
   console.log("totalDegX:", totalDegX, "totalDegY:", totalDegY);
   game.update();
   game.draw();
-  game.degmatch();
+  game.degmatch(totalDegX, totalDegY);
   textAlign(CENTER, CENTER); // 텍스트 정렬 설정
-  text(32);
+  textSize(32);
   fill("#000066"); // 텍스트 색상 설정
   text(totalDegX.toFixed(2) + " DegX", width / 2, height/2 - 30); // 합산된 기울기 값을 라디안으로 변환하여 화면에 표시
   text(totalDegY.toFixed(2) + " DegY", width / 2, height/2);
@@ -120,6 +134,12 @@ class MovingGame {
     this.restartButton.size(100, 50);
     this.restartButton.mousePressed(() => this.resetGame());
     this.restartButton.hide();
+    this.isButtonPressed = false;
+    this.isButtonOver = false;
+    this.isButtonPressedAgain = false;
+    this.isButtonOverAgain = false;
+    this.isButtonPressedClose = false;
+    this.isButtonOverClose = false;
   }
 
   startNewRound() {
@@ -127,7 +147,6 @@ class MovingGame {
     if (this.round > this.maxRounds) {
       this.success = true;
       this.gameOver = true;
-      this.restartButton.show();
       return;
     }
 
@@ -156,7 +175,6 @@ class MovingGame {
     // 시간 초과시 게임오버 및 재시작 버튼 등장
     if (millis() - this.startTime > this.getTimeLimit()) {
       this.gameOver = true;
-      this.restartButton.show();
     }
   }
 
@@ -184,25 +202,56 @@ class MovingGame {
 
   //게임시작시 화면
   drawStartScreen() {
+    image(startBg, 0, 0, width, height); // 시작화면 배경 이미지 그리기
     textSize(32);
     textAlign(CENTER, CENTER);
     text('Press any key to start', width / 2, height / 2 - 100);
+    let img;
+    if (this.isButtonPressed) {
+      img = buttonStartPressed;
+    } else if (this.isButtonOver) {
+      img = buttonStartOver;
+    } else {
+      img = buttonStart;
+    }
+    noSmooth();
+    image(img, width / 2 - 160, height * 4 / 5 - 70, 320, 140); // 이미지 크기를 320x140px로 설정, 위치를 width/2, height*4/5로 설정
   }
-
-  //시간 초과시 화면
-  drawGameOverScreen() {
+  
+ drawGameOverScreen() {
     textSize(32);
     textAlign(CENTER, CENTER);
     text('Times Up! You Lost!', width / 2, height / 2 - 40);
     this.restartButton.show();
+  
+    let img;
+    if (this.isButtonPressedAgain) {
+      img = buttonAgainPressed;
+    } else if (this.isButtonOverAgain) {
+      img = buttonAgainOver;
+    } else {
+      img = buttonAgain;
+    }
+  
+    image(img, width / 2 - 160, height * 4 / 5 - 70, 320, 140); // 이미지 크기를 320x140px로 설정, 위치를 width/2, height*4/5로 설정
   }
-
-  //게임완료 시 화면
+  
   drawSuccessScreen() {
     textSize(32);
     textAlign(CENTER, CENTER);
     text('Congratulations! You Won!', width / 2, height / 2 - 40);
     this.restartButton.show();
+  
+    let img;
+    if (this.isButtonPressedClose) {
+      img = buttonClosePressed;
+    } else if (this.isButtonOverClose) {
+      img = buttonCloseOver;
+    } else {
+      img = buttonClose;
+    }
+    noSmooth();
+    image(img, width / 2 - 160, height * 4 / 5 - 70, 320, 140); // 이미지 크기를 320x140px로 설정, 위치를 width/2, height*4/5로 설정
   }
 
   //화면에 방향키 띄우기
@@ -311,14 +360,45 @@ function mousePressed() {
   } else {
     console.error("game.handleKeyPressed is not a function or game is not defined");
   }
+
+  if (!game.gameStarted && mouseX > width / 2 - 160 && mouseX < width / 2 + 160 && mouseY > height * 4 / 5 - 70 && mouseY < height * 4 / 5 + 70) {
+    game.isButtonPressed = true;
+    game.startGame();
+  }
+
+  if (game.gameOver && !game.success && mouseX > width / 2 - 160 && mouseX < width / 2 + 160 && mouseY > height * 4 / 5 - 70 && mouseY < height * 4 / 5 + 70) {
+    game.isButtonPressedAgain = true;
+    game.resetGame();
+  }
+
+  if (game.gameOver && game.success && mouseX > width / 2 - 160 && mouseX < width / 2 + 160 && mouseY > height * 4 / 5 - 70 && mouseY < height * 4 / 5 + 70) {
+    game.isButtonPressedClose = true;
+    game.closeGame();
+  }
 }
 
-function keyPressed() {
-  if (game && typeof game.handleKeyPressed === 'function') {
-    let storedDegX = totalDegX;
-    let storedDegY = totalDegY;
-    game.degmatch(storedDegX, storedDegY);
+function mouseReleased() {
+  game.isButtonPressed = false;
+  game.isButtonPressedAgain = false;
+  game.isButtonPressedClose = false;
+}
+
+function mouseMoved() {
+  if (!game.gameStarted && mouseX > width / 2 - 160 && mouseX < width / 2 + 160 && mouseY > height * 4 / 5 - 70 && mouseY < height * 4 / 5 + 70) {
+    game.isButtonOver = true;
   } else {
-    console.error("game.handleKeyPressed is not a function or game is not defined");
+    game.isButtonOver = false;
+  }
+
+  if (game.gameOver && !game.success && mouseX > width / 2 - 160 && mouseX < width / 2 + 160 && mouseY > height * 4 / 5 - 70 && mouseY < height * 4 / 5 + 70) {
+    game.isButtonOverAgain = true;
+  } else {
+    game.isButtonOverAgain = false;
+  }
+
+  if (game.gameOver && game.success && mouseX > width / 2 - 160 && mouseX < width / 2 + 160 && mouseY > height * 4 / 5 - 70 && mouseY < height * 4 / 5 + 70) {
+    game.isButtonOverClose = true;
+  } else {
+    game.isButtonOverClose = false;
   }
 }
