@@ -6,29 +6,35 @@
 
     <title>Sketch</title>
     <link rel="stylesheet" type="text/css" href="style.css">
-    <style>
-      #activateButton {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 10px 20px;
-        background-color: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-    </style>
+
   </head>
+
+  <style>
+    .center-button {
+      position: absolute;
+      top: 63%;
+      left: 40%;
+      transform: translate(-50%, 0%);
+    }
+  </style> 
   
   <body>
     <main></main>
-    <button id="activateButton">Activate</button>
+    <button id="activateButton" class="center-button" style="width: 300px; height: 200px;">Activate</button>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
     <script src="p5.party.js"></script>
+    <script src="camera.js"></script>
+    <script src="gameMap.js"></script>
+    <script src="player.js"></script>
+    <script src="chatgame.js"></script>
+    <script src="screwgame.js"></script>
+    <script src="screw.js"></script>
+    <script src="movingGame.js"></script>
+    <script src="motorgame.js"></script>
+    <script src="dodgegame.js"></script>
     <script src="libraries/p5.min.js"></script>
     <script src="libraries/p5.sound.min.js"></script>
+    <script src="activateButton.js"></script>
     <script src="main.js"></script>
   </body>
 </html>
